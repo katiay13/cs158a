@@ -22,7 +22,7 @@ def receive_msg(sock):
     return data.decode()
 
 # Sends message to client
-def send_message(sock, message):
+def send_msg(sock, message):
     msg_len = len(message)
     response = f"{msg_len:02d}" + message
     sock.send(response.encode())
@@ -43,7 +43,7 @@ def process_msg(cnSocket, addr):
     # Show what received from client
     print(f"processed: {sentence}")
     capSentence = sentence.upper()
-    send_message(cnSocket, capSentence)
+    send_msg(cnSocket, capSentence)
 
     cnSocket.close()
     print("Connection closed\n")
