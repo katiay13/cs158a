@@ -7,6 +7,7 @@ import sys
 HOST = 'localhost' # Change to server IP if needed
 PORT = 2222 # Default port for chat server
 BUFFER_SIZE = 1024
+USE_NEWLINE = False # Set to false if using other server
 
 # Receives messages from server and prints to user
 def receive_msgs(sock):
@@ -18,9 +19,12 @@ def receive_msgs(sock):
             if not chunk:
                 break
             data += chunk
-            while b'\n' in data:  # Process complete messages
-                message, data = data.split(b'\n', 1)
-                print(message.decode())
+            if USE_NEWLINE:  # If using newline to separate messages
+                while b'\n' in data:  # Process complete messages
+                    message, data = data.split(b'\n', 1)
+                    print(message.decode())
+            else:
+                print(chunk.decode(), end='')  # Print without double newline
         except:
             break
 
@@ -30,9 +34,15 @@ def send_msgs(sock):
     while True:
         message = input()
         if message.strip().lower() == "exit":
-            sock.sendall(b"exit\n") # Send exit command to server
+            if USE_NEWLINE:
+                sock.sendall(b"exit\n")
+            else:
+                sock.sendall(b"exit")
             break
-        sock.sendall((message + '\n').encode())
+        if USE_NEWLINE:
+            sock.sendall((message + '\n').encode())
+        else:
+            sock.sendall(message.encode())
     sock.close()
     print("Disconnected from server")
     sys.exit()

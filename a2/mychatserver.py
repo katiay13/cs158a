@@ -6,6 +6,7 @@ import sys
 
 PORT = 2222
 BUFFER_SIZE = 1024
+USE_NEWLINE = False # Set to false if using other client
 
 # Client = socket object, port number
 clients = {} # Dictionary holds clients
@@ -13,13 +14,13 @@ clients_lock = threading.Lock() # Lock for thread-safe access
 
 # Send message to all chat users except sender
 def update_chat(message, sender):
-    for conn in list(clients.keys()):
-        if conn != sender:
-            try:
-                conn.sendall((message + '\n').encode())
-            except: # Handle possible disconnection
-                conn.close()
-                with clients_lock:
+    with clients_lock: # Ensure thread-safe access to clients dictionary
+        for conn in list(clients.keys()):
+            if conn != sender:
+                try:
+                    conn.sendall((message + '\n').encode())
+                except: # Handle possible disconnection
+                    conn.close()
                     del clients[conn]
 
 # Receive message from a client and send to chat
@@ -31,16 +32,26 @@ def handle_client(conn, addr):
         clients[conn] = port # Store client connection
 
     data = b''
+
     while True:
         chunk = conn.recv(BUFFER_SIZE)
         if not chunk:
             break
-        data += chunk
-        while b'\n' in data: # Process complete messages
-            message, data = data.split(b'\n', 1)
-            message = message.decode().strip()
-            if message.lower() == 'exit': # Handle exit command
+
+        if USE_NEWLINE:  # If using newline to separate messages
+            data += chunk
+            while b'\n' in data: # Process complete messages
+                message, data = data.split(b'\n', 1)
+                message = message.decode().strip()
+                if message.lower() == 'exit':
+                    break
+                print(f"{port}: {message}")
+                update_chat(f"{port}: {message}", conn)
+        else:
+            message = chunk.decode().strip()
+            if message.lower() == 'exit':
                 break
+            print(f"{port}: {message}")
             update_chat(f"{port}: {message}", conn)
 
     with clients_lock:
