@@ -8,36 +8,46 @@ PORT = 2222
 BUFFER_SIZE = 1024
 
 # Client = socket object, port number
-# Dictionary holds clients
-clients = {}
+clients = {} # Dictionary holds clients
+clients_lock = threading.Lock() # Lock for thread-safe access
 
 # Send message to all chat users except sender
 def update_chat(message, sender):
-    for conn in list(clients):
-        if conn != sender: # Don't send to sender
+    for conn in list(clients.keys()):
+        if conn != sender:
             try:
-                conn.sendall(message.encode())
+                conn.sendall((message + '\n').encode())
             except: # Handle possible disconnection
                 conn.close()
-                del clients[conn]
+                with clients_lock:
+                    del clients[conn]
 
 # Receive message from a client and send to chat
 def handle_client(conn, addr):
     port = addr[1]
     print(f"New connection from {addr}")
-    clients[conn] = port # Store client connection
 
+    with clients_lock: # Ensure thread-safe access to clients dictionary
+        clients[conn] = port # Store client connection
+
+    data = b''
     while True:
-        data = conn.recv(BUFFER_SIZE)
-        if not data:
+        chunk = conn.recv(BUFFER_SIZE)
+        if not chunk:
             break
-        message = data.decode().strip()
-        if message.lower() == "exit": # End chat
-            break
-        update_chat(f"{port}: {message}", conn)
+        data += chunk
+        while b'\n' in data: # Process complete messages
+            message, data = data.split(b'\n', 1)
+            message = message.decode().strip()
+            if message.lower() == 'exit': # Handle exit command
+                break
+            update_chat(f"{port}: {message}", conn)
+
+    with clients_lock:
+        if conn in clients:
+            del clients[conn]
 
     conn.close()
-    del clients[conn] # Remove client from dictionary
     print(f"Connection closed from {addr}")
 
 # Starts server and listens for incoming connections
@@ -45,7 +55,7 @@ def start_server():
     server = socket(AF_INET, SOCK_STREAM)
     server.bind(('', PORT))
     server.listen()
-    server_ip = socket.gethostbyname(socket.gethostname())
+    server_ip = gethostbyname(gethostname())
     print(f"Server listening on {server_ip}:{PORT}")
 
     # Accepts connections and starts a new thread for each client   
@@ -55,6 +65,10 @@ def start_server():
             threading.Thread(target=handle_client, args=(conn, addr)).start()
     except KeyboardInterrupt:
         print("\nServer shutting down...")
+        with clients_lock:
+            for conn in list(clients.keys()):
+                conn.close()
+                del clients[conn]
         server.close()
         sys.exit()
 

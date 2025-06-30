@@ -10,13 +10,17 @@ BUFFER_SIZE = 1024
 
 # Receives messages from server and prints to user
 def receive_msgs(sock):
+    data = b''  # Initialize empty byte string
     # Continuously receive messages from the server
     while True:
         try:
-            data = sock.recv(BUFFER_SIZE)
-            if not data:
+            chunk = sock.recv(BUFFER_SIZE)
+            if not chunk:
                 break
-            print(data.decode())
+            data += chunk
+            while b'\n' in data:  # Process complete messages
+                message, data = data.split(b'\n', 1)
+                print(message.decode())
         except:
             break
 
@@ -26,9 +30,9 @@ def send_msgs(sock):
     while True:
         message = input()
         if message.strip().lower() == "exit":
-            sock.sendall(b"exit") # Send exit command to server
+            sock.sendall(b"exit\n") # Send exit command to server
             break
-        sock.sendall(message.encode())
+        sock.sendall((message + '\n').encode())
     sock.close()
     print("Disconnected from server")
     sys.exit()
