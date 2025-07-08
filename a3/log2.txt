@@ -1,0 +1,8 @@
+Received: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=0, greater, 0
+Sent: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=0
+Received: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=1, greater, 0
+Leader is decided to 78ca1f10-7a80-45ee-8897-48f5439ea6f0
+Sent: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=1
+Sent: uuid=41efa2f5-bf4f-4e3d-957f-d5134432a63d, flag=0
+
+Leader is 78ca1f10-7a80-45ee-8897-48f5439ea6f0

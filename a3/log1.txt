@@ -1,0 +1,8 @@
+Sent: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=0
+Received: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=0, same, 0
+Leader is decided to 78ca1f10-7a80-45ee-8897-48f5439ea6f0
+Sent: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=1
+Received: uuid=78ca1f10-7a80-45ee-8897-48f5439ea6f0, flag=1, same, 1, leader_id=78ca1f10-7a80-45ee-8897-48f5439ea6f0
+Leader announcement ignored, already announced.
+
+Leader is 78ca1f10-7a80-45ee-8897-48f5439ea6f0
