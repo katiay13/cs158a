@@ -158,13 +158,13 @@ class Node:
         threading.Thread(target=self.start_server, daemon=True).start()
         
         # Wait for everyone to start servers
-        time.sleep(15)
+        time.sleep(10)
 
         # Connect to neighbor as client
         self.connect_to_neighbor()
 
         # Wait for connection to be established
-        time.sleep(15)
+        time.sleep(10)
 
         # Start election process
         initial_message = Message(self.uuid, 0)
