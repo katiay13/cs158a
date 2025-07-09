@@ -158,7 +158,7 @@ class Node:
         threading.Thread(target=self.start_server, daemon=True).start()
         
         # Wait for everyone to start servers
-        time.sleep(10)
+        time.sleep(15)
 
         # Connect to neighbor as client
         self.connect_to_neighbor()
