@@ -164,7 +164,7 @@ class Node:
         self.connect_to_neighbor()
 
         # Wait for connection to be established
-        time.sleep(5)
+        time.sleep(15)
 
         # Start election process
         initial_message = Message(self.uuid, 0)
